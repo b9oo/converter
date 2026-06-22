@@ -1,21 +1,18 @@
 body {
-font-family: Arial, sans-serif;
-margin: 40px;
-}
-
-.container {
-max-width: 800px;
-margin: auto;
+    font-family: Arial;
+    padding: 30px;
+    background: #111;
+    color: #0ff;
 }
 
 button {
-padding: 10px 20px;
-cursor: pointer;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
 }
 
 pre {
-background: #eee;
-padding: 10px;
-min-height: 150px;
-overflow-x: auto;
+    margin-top: 20px;
+    background: #222;
+    padding: 10px;
 }
