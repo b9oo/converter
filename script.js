@@ -1,53 +1,43 @@
-const output = document.getElementById("output");
-const button = document.getElementById("convertBtn");
-
-button.addEventListener("click", convert);
-
 async function convert() {
-const fileInput = document.getElementById("videoFile");
+    const file = document.getElementById("file").files[0];
+    const out = document.getElementById("out");
 
-```
-if (!fileInput.files.length) {
-    output.textContent = "Please select an MP4 file.";
-    return;
-}
+    if (!file) {
+        out.textContent = "No file selected.";
+        return;
+    }
 
-output.textContent = "Loading FFmpeg...";
+    out.textContent = "Reading audio...";
 
-const { FFmpeg } = FFmpegWASM;
-const ffmpeg = new FFmpeg();
+    const audioCtx = new AudioContext();
+    const arrayBuffer = await file.arrayBuffer();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-await ffmpeg.load();
+    const data = audioBuffer.getChannelData(0);
 
-const file = fileInput.files[0];
+    let notes = [];
+    let step = 2000;
 
-output.textContent = "Reading MP4...";
+    for (let i = 0; i < data.length; i += step) {
+        let slice = data.slice(i, i + step);
 
-const data = new Uint8Array(await file.arrayBuffer());
+        let sum = 0;
+        for (let j = 0; j < slice.length; j++) {
+            sum += Math.abs(slice[j]);
+        }
 
-await ffmpeg.writeFile("input.mp4", data);
+        let avg = sum / slice.length;
 
-output.textContent = "Extracting audio...";
+        let freq = avg * 1000 + 100; // fake pitch estimate
 
-await ffmpeg.exec([
-    "-i",
-    "input.mp4",
-    "-vn",
-    "-acodec",
-    "pcm_s16le",
-    "-ar",
-    "44100",
-    "-ac",
-    "1",
-    "audio.wav"
-]);
+        let note = freqToNote(freq);
+        notes.push(note);
+    }
 
-const wav = await ffmpeg.readFile("audio.wav");
+    let melody = notes.join(" ");
 
-output.textContent =
-    "Audio extracted successfully.\n\n" +
-    "Next step: Analyze WAV and convert notes to MakeCode format.\n" +
-    `Extracted WAV size: ${wav.length} bytes`;
-```
-
+    out.textContent =
+        "MakeCode Melody:\n\n" +
+        melody +
+        "\n\nCopy into music.playMelody()";
 }
